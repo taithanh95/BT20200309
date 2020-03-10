@@ -2,6 +2,8 @@ package com.bof.file;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,12 +43,6 @@ public class FileMng {
 			// List<String> dataNumberList = Arrays.asList(text);
 			System.out.println(dataNumberList);
 
-			for (int i = 0; i < dataNumberList.size() - 1; i++) {
-				for (int j = i + 1; j < dataNumberList.size(); j++) {
-					String kyTu = dataNumberList.get(i);
-					int num = Integer.parseInt(kyTu);
-				}
-			}
 		}
 
 		catch (Exception e) {
@@ -56,13 +52,40 @@ public class FileMng {
 
 	public String validateFile(String path) {
 		// Case 1: Khong tim thay file du lieu
+		if (!fileSrc.exists()) {
+			System.out.println("Khong tim thay file du lieu!");
+		}
 		// Case 2: File khong co du lieu
+		if (fileSrc.length() == 0) {
+			System.out.println("Tep khong co du lieu dau vao!");
+		}
 		return null;
 	}
 
 	public List<String> readFile(File file) {
 		List<String> listDataList = new ArrayList<>();
 		// Do some thing
+		try {
+			String text = "";
+			FileInputStream in = new FileInputStream(fileSrc);
+			byte buff[] = new byte[1024];
+
+			int len = in.read(buff);
+			while (len > 0) {
+				text += new String(buff, 0, len);
+				len = in.read(buff);
+			}
+			in.close();
+			List<String> dataNumberList = new ArrayList<String>();
+			dataNumberList.add(text);
+			// List<String> dataNumberList = Arrays.asList(text);
+			System.out.println(dataNumberList);
+
+		}
+
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		return listDataList;
 	}
 
@@ -73,12 +96,14 @@ public class FileMng {
 			try {
 				Long valueLong = Long.valueOf(listDataList.get(i));
 			} catch (Exception e) {
-				listDataErrList.add("Dong thu " + (i + 1) + " co gia tri [" + listDataList.get(i) + "] khong phai la dinh dang so.");
-			};
+				listDataErrList.add("Dong thu " + (i + 1) + " co gia tri [" + listDataList.get(i)
+						+ "] khong phai la dinh dang so.");
+			}
+			;
 		}
 		return listDataErrList;
 	}
-	
+
 	public static void main(String[] args) {
 		List<String> listDataList = new ArrayList<>();
 		listDataList.add("1");
@@ -88,7 +113,7 @@ public class FileMng {
 		listDataList.add("7");
 		List<Long> listDataErrList = new FileMng().sortListDataAsc(listDataList);
 		if (listDataErrList != null && listDataErrList.size() > 0)
-			for (Long string : listDataErrList) 
+			for (Long string : listDataErrList)
 				System.out.println(string);
 	}
 
@@ -102,8 +127,19 @@ public class FileMng {
 		return listDataSort;
 	}
 
-	public void writeFile(List<String> listDataListAfterSort) {
+	public void writeFile(String listDataList, boolean isAppend) throws IOException {
+		File file = new File(listDataList);
 
+		try {
+			FileOutputStream out = new FileOutputStream(file, isAppend);
+			byte[] buff = listDataList.getBytes();
+			out.write(buff);
+
+			out.close();
+			System.out.println("Write text successfull!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void exe(String path) {
@@ -127,13 +163,10 @@ public class FileMng {
 
 		// Sap xep lai
 		List<Long> listDataSort = sortListDataAsc(listDataList);
-		
-		//In ra man hinh so min/max
+
+		// In ra man hinh so min/max
 		System.out.println("Min = " + listDataSort.get(0));
 		System.out.println("Max = " + listDataSort.get(listDataSort.size() - 1));
-		
-		
-		
 
 	}
 }
